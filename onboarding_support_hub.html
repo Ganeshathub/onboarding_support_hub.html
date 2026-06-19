@@ -1,0 +1,528 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans);background:var(--color-background-tertiary);color:var(--color-text-primary)}
+.app{display:flex;min-height:100vh}
+.sidebar{width:220px;min-width:220px;background:var(--color-background-primary);border-right:0.5px solid var(--color-border-tertiary);padding:1.25rem 0;display:flex;flex-direction:column;gap:0}
+.sidebar-logo{padding:0 1.25rem 1.25rem;border-bottom:0.5px solid var(--color-border-tertiary);margin-bottom:0.75rem}
+.sidebar-logo h1{font-size:15px;font-weight:500;color:var(--color-text-primary)}
+.sidebar-logo p{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.nav-section{padding:0 0.75rem;margin-bottom:0.25rem}
+.nav-label{font-size:11px;font-weight:500;color:var(--color-text-tertiary);letter-spacing:0.06em;text-transform:uppercase;padding:0.5rem 0.5rem 0.25rem}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--border-radius-md);font-size:13.5px;color:var(--color-text-secondary);cursor:pointer;border:none;background:none;width:100%;text-align:left}
+.nav-item:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.nav-item.active{background:var(--color-background-secondary);color:var(--color-text-primary);font-weight:500}
+.nav-item i{font-size:16px;width:18px}
+.badge{margin-left:auto;font-size:11px;padding:2px 7px;border-radius:20px;background:var(--color-background-info);color:var(--color-text-info)}
+.badge.new{background:var(--color-background-success);color:var(--color-text-success)}
+.main{flex:1;overflow:auto}
+.topbar{background:var(--color-background-primary);border-bottom:0.5px solid var(--color-border-tertiary);padding:0.875rem 1.75rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.topbar-title{font-size:15px;font-weight:500}
+.topbar-right{display:flex;align-items:center;gap:10px}
+.topbar-search{display:flex;align-items:center;gap:8px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:13px;color:var(--color-text-secondary);cursor:text}
+.btn-primary{background:var(--color-text-primary);color:var(--color-background-primary);border:none;border-radius:var(--border-radius-md);padding:7px 14px;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;gap:6px}
+.content{padding:1.75rem}
+.page{display:none}
+.page.active{display:block}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem}
+.section-header h2{font-size:18px;font-weight:500}
+.section-header p{font-size:13px;color:var(--color-text-secondary);margin-top:3px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(0,1fr));gap:1rem;margin-bottom:1.5rem}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1rem;margin-bottom:1.5rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.card-sm{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem}
+.metric-card{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:1rem}
+.metric-card .label{font-size:12px;color:var(--color-text-secondary);margin-bottom:4px}
+.metric-card .value{font-size:22px;font-weight:500}
+.tag{display:inline-flex;align-items:center;font-size:11px;padding:3px 9px;border-radius:20px;font-weight:500}
+.tag-info{background:var(--color-background-info);color:var(--color-text-info)}
+.tag-success{background:var(--color-background-success);color:var(--color-text-success)}
+.tag-warn{background:var(--color-background-warning);color:var(--color-text-warning)}
+.tag-danger{background:var(--color-background-danger);color:var(--color-text-danger)}
+.tag-neutral{background:var(--color-background-secondary);color:var(--color-text-secondary)}
+.row{display:flex;align-items:center;gap:10px}
+.doc-list{display:flex;flex-direction:column;gap:0}
+.doc-item{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:0.5px solid var(--color-border-tertiary);cursor:pointer}
+.doc-item:last-child{border-bottom:none}
+.doc-item:hover .doc-title{color:var(--color-text-info)}
+.doc-left{display:flex;align-items:center;gap:10px}
+.doc-icon{width:32px;height:32px;border-radius:var(--border-radius-md);background:var(--color-background-secondary);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--color-text-secondary)}
+.doc-title{font-size:13.5px;font-weight:500}
+.doc-meta{font-size:12px;color:var(--color-text-secondary);margin-top:1px}
+.agent-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:1rem}
+.agent-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem;text-align:center}
+.avatar{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:500;margin:0 auto 10px}
+.avatar-blue{background:#E6F1FB;color:#0C447C}
+.avatar-teal{background:#E1F5EE;color:#085041}
+.avatar-purple{background:#EEEDFE;color:#3C3489}
+.avatar-coral{background:#FAECE7;color:#712B13}
+.agent-name{font-size:13.5px;font-weight:500}
+.agent-role{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.agent-status{font-size:11px;margin-top:8px}
+.ticket-list{display:flex;flex-direction:column;gap:0.75rem}
+.ticket{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1rem 1.25rem;display:flex;align-items:center;gap:1rem}
+.ticket-id{font-size:12px;color:var(--color-text-tertiary);min-width:60px}
+.ticket-info{flex:1}
+.ticket-title{font-size:13.5px;font-weight:500}
+.ticket-sub{font-size:12px;color:var(--color-text-secondary);margin-top:2px}
+.ticket-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.priority-dot{width:8px;height:8px;border-radius:50%}
+.p-high{background:#E24B4A}
+.p-med{background:#EF9F27}
+.p-low{background:#639922}
+.announce-list{display:flex;flex-direction:column;gap:1rem}
+.announce{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.25rem}
+.announce-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.announce-title{font-size:14px;font-weight:500}
+.announce-date{font-size:12px;color:var(--color-text-tertiary)}
+.announce-body{font-size:13px;color:var(--color-text-secondary);line-height:1.6}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:1.5rem 0}
+.filter-row{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap}
+.filter-btn{border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);border-radius:var(--border-radius-md);padding:6px 14px;font-size:13px;color:var(--color-text-secondary);cursor:pointer}
+.filter-btn.active{border-color:var(--color-border-primary);color:var(--color-text-primary);font-weight:500;background:var(--color-background-secondary)}
+.modal-backdrop{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:100;align-items:center;justify-content:center}
+.modal-backdrop.open{display:flex}
+.modal{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:1.5rem;width:460px;max-width:90vw}
+.modal h3{font-size:16px;font-weight:500;margin-bottom:1rem}
+.form-group{margin-bottom:1rem}
+.form-group label{display:block;font-size:13px;color:var(--color-text-secondary);margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:8px 12px;font-size:13.5px;background:var(--color-background-primary);color:var(--color-text-primary)}
+.form-group textarea{resize:vertical;min-height:80px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem}
+.btn-secondary{border:0.5px solid var(--color-border-secondary);background:none;border-radius:var(--border-radius-md);padding:7px 14px;font-size:13px;cursor:pointer;color:var(--color-text-primary)}
+.empty-state{text-align:center;padding:3rem 1rem;color:var(--color-text-secondary)}
+.empty-state i{font-size:32px;margin-bottom:0.75rem;display:block}
+.progress-bar{height:4px;background:var(--color-border-tertiary);border-radius:2px;overflow:hidden;margin-top:8px}
+.progress-fill{height:100%;border-radius:2px;background:#1D9E75}
+</style>
+
+<h2 class="sr-only">Onboarding and Support Team Hub — internal process and agent management portal</h2>
+
+<div class="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Team Hub</h1>
+      <p>Onboarding &amp; Support</p>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <button class="nav-item active" onclick="navigate('dashboard',this)"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Dashboard</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Processes</div>
+      <button class="nav-item" onclick="navigate('onboarding-docs',this)"><i class="ti ti-book" aria-hidden="true"></i> Onboarding SOPs</button>
+      <button class="nav-item" onclick="navigate('support-docs',this)"><i class="ti ti-headset" aria-hidden="true"></i> Support Guides</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Team</div>
+      <button class="nav-item" onclick="navigate('agents',this)"><i class="ti ti-users" aria-hidden="true"></i> Agents</button>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Operations</div>
+      <button class="nav-item" onclick="navigate('tickets',this)"><i class="ti ti-ticket" aria-hidden="true"></i> Open Tickets <span class="badge">5</span></button>
+      <button class="nav-item" onclick="navigate('updates',this)"><i class="ti ti-bell" aria-hidden="true"></i> Updates <span class="badge new">2</span></button>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="page-title">Dashboard</span>
+      <div class="topbar-right">
+        <div class="topbar-search"><i class="ti ti-search" aria-hidden="true" style="font-size:14px"></i> Search…</div>
+        <button class="btn-primary" id="add-btn" onclick="openModal()"><i class="ti ti-plus" aria-hidden="true"></i> Add</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="grid-3">
+          <div class="metric-card"><div class="label">Active agents</div><div class="value">12</div></div>
+          <div class="metric-card"><div class="label">Open tickets</div><div class="value">5</div></div>
+          <div class="metric-card"><div class="label">Process docs</div><div class="value">18</div></div>
+        </div>
+        <div class="grid-2">
+          <div class="card">
+            <div style="font-size:13px;font-weight:500;margin-bottom:1rem">Recent process updates</div>
+            <div class="doc-list">
+              <div class="doc-item">
+                <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">New hire checklist v3</div><div class="doc-meta">Onboarding · Updated 2 days ago</div></div></div>
+                <span class="tag tag-success">Updated</span>
+              </div>
+              <div class="doc-item">
+                <div class="doc-left"><div class="doc-icon"><i class="ti ti-headset" aria-hidden="true"></i></div><div><div class="doc-title">Escalation matrix 2026</div><div class="doc-meta">Support · Updated 5 days ago</div></div></div>
+                <span class="tag tag-info">Revised</span>
+              </div>
+              <div class="doc-item">
+                <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">Ticket response SLAs</div><div class="doc-meta">Support · Updated 1 week ago</div></div></div>
+                <span class="tag tag-neutral">Archive</span>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="font-size:13px;font-weight:500;margin-bottom:1rem">Latest announcements</div>
+            <div style="display:flex;flex-direction:column;gap:0.75rem">
+              <div style="border-left:2px solid #1D9E75;padding-left:12px">
+                <div style="font-size:13px;font-weight:500">Q3 support coverage plan live</div>
+                <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">June 15 · All teams</div>
+              </div>
+              <div style="border-left:2px solid #378ADD;padding-left:12px">
+                <div style="font-size:13px;font-weight:500">New onboarding portal rollout</div>
+                <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">June 10 · Onboarding team</div>
+              </div>
+              <div style="border-left:2px solid var(--color-border-tertiary);padding-left:12px">
+                <div style="font-size:13px;font-weight:500">Updated ticket routing rules</div>
+                <div style="font-size:12px;color:var(--color-text-secondary);margin-top:2px">June 3 · Support team</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div style="font-size:13px;font-weight:500;margin-bottom:1rem">Open tickets — priority overview</div>
+          <div class="ticket-list">
+            <div class="ticket">
+              <span class="ticket-id">#T-1041</span>
+              <div class="ticket-info"><div class="ticket-title">Client unable to complete step 3 of portal setup</div><div class="ticket-sub">Assigned: Maria L. · 2h ago</div></div>
+              <div class="ticket-right"><div class="priority-dot p-high"></div><span class="tag tag-danger">High</span></div>
+            </div>
+            <div class="ticket">
+              <span class="ticket-id">#T-1038</span>
+              <div class="ticket-info"><div class="ticket-title">Onboarding email sequence not triggering</div><div class="ticket-sub">Assigned: James K. · 5h ago</div></div>
+              <div class="ticket-right"><div class="priority-dot p-med"></div><span class="tag tag-warn">Medium</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ONBOARDING DOCS -->
+      <div class="page" id="page-onboarding-docs">
+        <div class="section-header">
+          <div><h2>Onboarding SOPs</h2><p>Standard operating procedures for the onboarding team</p></div>
+        </div>
+        <div class="filter-row" id="ob-filters">
+          <button class="filter-btn active" onclick="filterDocs('ob','All',this)">All</button>
+          <button class="filter-btn" onclick="filterDocs('ob','Active',this)">Active</button>
+          <button class="filter-btn" onclick="filterDocs('ob','Archived',this)">Archived</button>
+        </div>
+        <div class="card">
+          <div class="doc-list" id="ob-doc-list">
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">New hire checklist v3</div><div class="doc-meta">Owner: Maria L. · Updated Jun 16, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">Day 1–30 onboarding schedule</div><div class="doc-meta">Owner: James K. · Updated Jun 10, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">Tool access provisioning SOP</div><div class="doc-meta">Owner: Sam T. · Updated May 28, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+            <div class="doc-item" data-status="Archived">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">New hire checklist v2</div><div class="doc-meta">Owner: Maria L. · Archived Mar 1, 2026</div></div></div>
+              <div class="row"><span class="tag tag-neutral">Archived</span></div>
+            </div>
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">Buddy program guidelines</div><div class="doc-meta">Owner: Priya M. · Updated Jun 1, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPPORT DOCS -->
+      <div class="page" id="page-support-docs">
+        <div class="section-header">
+          <div><h2>Support guides</h2><p>Processes, escalation paths, and response templates</p></div>
+        </div>
+        <div class="filter-row" id="sp-filters">
+          <button class="filter-btn active" onclick="filterDocs('sp','All',this)">All</button>
+          <button class="filter-btn" onclick="filterDocs('sp','Active',this)">Active</button>
+          <button class="filter-btn" onclick="filterDocs('sp','Archived',this)">Archived</button>
+        </div>
+        <div class="card">
+          <div class="doc-list" id="sp-doc-list">
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-headset" aria-hidden="true"></i></div><div><div class="doc-title">Escalation matrix 2026</div><div class="doc-meta">Owner: Sam T. · Updated Jun 13, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-headset" aria-hidden="true"></i></div><div><div class="doc-title">Ticket response SLA guide</div><div class="doc-meta">Owner: Priya M. · Updated Jun 5, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+            <div class="doc-item" data-status="Active">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-headset" aria-hidden="true"></i></div><div><div class="doc-title">Email response templates</div><div class="doc-meta">Owner: James K. · Updated May 20, 2026</div></div></div>
+              <div class="row"><span class="tag tag-success">Active</span></div>
+            </div>
+            <div class="doc-item" data-status="Archived">
+              <div class="doc-left"><div class="doc-icon"><i class="ti ti-headset" aria-hidden="true"></i></div><div><div class="doc-title">Escalation matrix 2025</div><div class="doc-meta">Owner: Sam T. · Archived Jan 15, 2026</div></div></div>
+              <div class="row"><span class="tag tag-neutral">Archived</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- AGENTS -->
+      <div class="page" id="page-agents">
+        <div class="section-header">
+          <div><h2>Agents</h2><p>Onboarding and support team members</p></div>
+        </div>
+        <div class="filter-row">
+          <button class="filter-btn active" onclick="filterAgents('All',this)">All</button>
+          <button class="filter-btn" onclick="filterAgents('Onboarding',this)">Onboarding</button>
+          <button class="filter-btn" onclick="filterAgents('Support',this)">Support</button>
+          <button class="filter-btn" onclick="filterAgents('Lead',this)">Leads</button>
+        </div>
+        <div class="agent-grid" id="agent-grid">
+          <div class="agent-card" data-team="Onboarding" data-role="Lead">
+            <div class="avatar avatar-blue">ML</div>
+            <div class="agent-name">Maria Lopez</div>
+            <div class="agent-role">Onboarding Lead</div>
+            <div class="agent-status"><span class="tag tag-success">Active</span></div>
+          </div>
+          <div class="agent-card" data-team="Support" data-role="Lead">
+            <div class="avatar avatar-teal">ST</div>
+            <div class="agent-name">Sam Thompson</div>
+            <div class="agent-role">Support Lead</div>
+            <div class="agent-status"><span class="tag tag-success">Active</span></div>
+          </div>
+          <div class="agent-card" data-team="Onboarding" data-role="Agent">
+            <div class="avatar avatar-purple">JK</div>
+            <div class="agent-name">James Kim</div>
+            <div class="agent-role">Onboarding Agent</div>
+            <div class="agent-status"><span class="tag tag-success">Active</span></div>
+          </div>
+          <div class="agent-card" data-team="Support" data-role="Agent">
+            <div class="avatar avatar-coral">PM</div>
+            <div class="agent-name">Priya Mehta</div>
+            <div class="agent-role">Support Agent</div>
+            <div class="agent-status"><span class="tag tag-success">Active</span></div>
+          </div>
+          <div class="agent-card" data-team="Onboarding" data-role="Agent">
+            <div class="avatar avatar-blue">RC</div>
+            <div class="agent-name">Rosa Chen</div>
+            <div class="agent-role">Onboarding Agent</div>
+            <div class="agent-status"><span class="tag tag-warn">On leave</span></div>
+          </div>
+          <div class="agent-card" data-team="Support" data-role="Agent">
+            <div class="avatar avatar-teal">DA</div>
+            <div class="agent-name">David Afolabi</div>
+            <div class="agent-role">Support Agent</div>
+            <div class="agent-status"><span class="tag tag-success">Active</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TICKETS -->
+      <div class="page" id="page-tickets">
+        <div class="section-header">
+          <div><h2>Open tickets</h2><p>Active issues requiring attention</p></div>
+        </div>
+        <div class="filter-row" id="ticket-filters">
+          <button class="filter-btn active" onclick="filterTickets('All',this)">All</button>
+          <button class="filter-btn" onclick="filterTickets('High',this)">High priority</button>
+          <button class="filter-btn" onclick="filterTickets('Medium',this)">Medium</button>
+          <button class="filter-btn" onclick="filterTickets('Low',this)">Low</button>
+        </div>
+        <div class="ticket-list" id="ticket-list">
+          <div class="ticket" data-priority="High">
+            <span class="ticket-id">#T-1041</span>
+            <div class="ticket-info"><div class="ticket-title">Client unable to complete step 3 of portal setup</div><div class="ticket-sub">Assigned: Maria L. · Opened 2h ago · Onboarding</div></div>
+            <div class="ticket-right"><span class="tag tag-danger">High</span></div>
+          </div>
+          <div class="ticket" data-priority="High">
+            <span class="ticket-id">#T-1039</span>
+            <div class="ticket-info"><div class="ticket-title">Access provisioning delayed — new hire cohort June</div><div class="ticket-sub">Assigned: Sam T. · Opened 3h ago · Onboarding</div></div>
+            <div class="ticket-right"><span class="tag tag-danger">High</span></div>
+          </div>
+          <div class="ticket" data-priority="Medium">
+            <span class="ticket-id">#T-1038</span>
+            <div class="ticket-info"><div class="ticket-title">Onboarding email sequence not triggering</div><div class="ticket-sub">Assigned: James K. · Opened 5h ago · Support</div></div>
+            <div class="ticket-right"><span class="tag tag-warn">Medium</span></div>
+          </div>
+          <div class="ticket" data-priority="Medium">
+            <span class="ticket-id">#T-1035</span>
+            <div class="ticket-info"><div class="ticket-title">SLA breach risk — ticket unassigned for 6h</div><div class="ticket-sub">Assigned: Priya M. · Opened 8h ago · Support</div></div>
+            <div class="ticket-right"><span class="tag tag-warn">Medium</span></div>
+          </div>
+          <div class="ticket" data-priority="Low">
+            <span class="ticket-id">#T-1031</span>
+            <div class="ticket-info"><div class="ticket-title">Guide link broken in welcome email</div><div class="ticket-sub">Assigned: David A. · Opened 1d ago · Support</div></div>
+            <div class="ticket-right"><span class="tag tag-neutral">Low</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- UPDATES -->
+      <div class="page" id="page-updates">
+        <div class="section-header">
+          <div><h2>Updates &amp; announcements</h2><p>Team-wide and process change notices</p></div>
+        </div>
+        <div class="announce-list" id="announce-list">
+          <div class="announce">
+            <div class="announce-top">
+              <div><div class="announce-title">Q3 support coverage plan is live</div><span class="tag tag-success" style="margin-top:6px;display:inline-flex">All teams</span></div>
+              <div class="announce-date">June 15, 2026</div>
+            </div>
+            <div class="announce-body">The Q3 coverage plan has been finalised and published. All agents should review their shift assignments and flag any conflicts to their lead by June 20.</div>
+          </div>
+          <div class="announce">
+            <div class="announce-top">
+              <div><div class="announce-title">New onboarding portal rollout — phase 1</div><span class="tag tag-info" style="margin-top:6px;display:inline-flex">Onboarding</span></div>
+              <div class="announce-date">June 10, 2026</div>
+            </div>
+            <div class="announce-body">Phase 1 of the new onboarding portal is now live for the June cohort. The updated new hire checklist v3 reflects the new flow. Training session scheduled for June 22 at 2 PM.</div>
+          </div>
+          <div class="announce">
+            <div class="announce-top">
+              <div><div class="announce-title">Updated ticket routing rules</div><span class="tag tag-info" style="margin-top:6px;display:inline-flex">Support</span></div>
+              <div class="announce-date">June 3, 2026</div>
+            </div>
+            <div class="announce-body">Ticket routing has been updated to auto-assign by category. Portal, access, and account issues now route directly to the onboarding queue. Billing and technical issues remain with support.</div>
+          </div>
+          <div class="announce">
+            <div class="announce-top">
+              <div><div class="announce-title">Escalation matrix updated for 2026</div><span class="tag tag-neutral" style="margin-top:6px;display:inline-flex">Support</span></div>
+              <div class="announce-date">May 20, 2026</div>
+            </div>
+            <div class="announce-body">The escalation matrix has been revised with new contact details and updated tier thresholds. Supersedes the 2025 version, which has been archived.</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">Add new item</h3>
+    <div class="form-group">
+      <label>Type</label>
+      <select id="item-type" onchange="updateModalType()">
+        <option value="doc">Process document</option>
+        <option value="agent">Agent</option>
+        <option value="ticket">Ticket</option>
+        <option value="update">Announcement</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Title / name</label>
+      <input type="text" id="item-title" placeholder="Enter title…">
+    </div>
+    <div class="form-group" id="field-team">
+      <label>Team</label>
+      <select id="item-team">
+        <option>Onboarding</option>
+        <option>Support</option>
+        <option>All teams</option>
+      </select>
+    </div>
+    <div class="form-group" id="field-note">
+      <label>Notes</label>
+      <textarea id="item-note" placeholder="Brief description…"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-secondary" onclick="closeModal()">Cancel</button>
+      <button class="btn-primary" onclick="saveItem()"><i class="ti ti-check" aria-hidden="true"></i> Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const pages={
+  'dashboard':'Dashboard',
+  'onboarding-docs':'Onboarding SOPs',
+  'support-docs':'Support guides',
+  'agents':'Agents',
+  'tickets':'Open tickets',
+  'updates':'Updates'
+};
+
+function navigate(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  btn.classList.add('active');
+  document.getElementById('page-title').textContent=pages[id]||id;
+}
+
+function filterDocs(ns,status,btn){
+  const listId=ns==='ob'?'ob-doc-list':'sp-doc-list';
+  const filtersId=ns==='ob'?'ob-filters':'sp-filters';
+  document.querySelectorAll('#'+filtersId+' .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#'+listId+' .doc-item').forEach(item=>{
+    item.style.display=(status==='All'||item.dataset.status===status)?'':'none';
+  });
+}
+
+function filterAgents(team,btn){
+  document.querySelectorAll('.filter-row .filter-btn').forEach(b=>{if(b.closest('#page-agents'))b.classList.remove('active')});
+  btn.classList.add('active');
+  document.querySelectorAll('#agent-grid .agent-card').forEach(card=>{
+    const match=team==='All'||(team==='Lead'&&card.dataset.role==='Lead')||card.dataset.team===team;
+    card.style.display=match?'':'none';
+  });
+}
+
+function filterTickets(priority,btn){
+  document.querySelectorAll('#ticket-filters .filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('#ticket-list .ticket').forEach(t=>{
+    t.style.display=(priority==='All'||t.dataset.priority===priority)?'':'none';
+  });
+}
+
+function openModal(){document.getElementById('modal').classList.add('open')}
+function closeModal(){document.getElementById('modal').classList.remove('open')}
+function updateModalType(){
+  const v=document.getElementById('item-type').value;
+  const labels={'doc':'Process document','agent':'Agent','ticket':'Ticket','update':'Announcement'};
+  document.getElementById('modal-title').textContent='Add '+labels[v];
+}
+
+function saveItem(){
+  const title=document.getElementById('item-title').value.trim();
+  if(!title)return;
+  const type=document.getElementById('item-type').value;
+  const team=document.getElementById('item-team').value;
+  const note=document.getElementById('item-note').value.trim();
+  const today=new Date().toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+
+  if(type==='doc'){
+    const list=team==='Support'?'sp-doc-list':'ob-doc-list';
+    const el=document.createElement('div');
+    el.className='doc-item';el.dataset.status='Active';
+    el.innerHTML=`<div class="doc-left"><div class="doc-icon"><i class="ti ti-file-text" aria-hidden="true"></i></div><div><div class="doc-title">${title}</div><div class="doc-meta">${team} · Added ${today}</div></div></div><div class="row"><span class="tag tag-success">Active</span></div>`;
+    document.getElementById(list).prepend(el);
+  } else if(type==='agent'){
+    const initials=title.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
+    const colors=['avatar-blue','avatar-teal','avatar-purple','avatar-coral'];
+    const cl=colors[Math.floor(Math.random()*colors.length)];
+    const el=document.createElement('div');
+    el.className='agent-card';el.dataset.team=team;el.dataset.role='Agent';
+    el.innerHTML=`<div class="avatar ${cl}">${initials}</div><div class="agent-name">${title}</div><div class="agent-role">${team} Agent</div><div class="agent-status"><span class="tag tag-success">Active</span></div>`;
+    document.getElementById('agent-grid').prepend(el);
+  } else if(type==='ticket'){
+    const num=Math.floor(Math.random()*100)+1050;
+    const el=document.createElement('div');
+    el.className='ticket';el.dataset.priority='Medium';
+    el.innerHTML=`<span class="ticket-id">#T-${num}</span><div class="ticket-info"><div class="ticket-title">${title}</div><div class="ticket-sub">Assigned: Unassigned · Just now · ${team}</div></div><div class="ticket-right"><span class="tag tag-warn">Medium</span></div>`;
+    document.getElementById('ticket-list').prepend(el);
+  } else if(type==='update'){
+    const el=document.createElement('div');
+    el.className='announce';
+    el.innerHTML=`<div class="announce-top"><div><div class="announce-title">${title}</div><span class="tag tag-info" style="margin-top:6px;display:inline-flex">${team}</span></div><div class="announce-date">${today}</div></div><div class="announce-body">${note||'No additional notes.'}</div>`;
+    document.getElementById('announce-list').prepend(el);
+  }
+
+  document.getElementById('item-title').value='';
+  document.getElementById('item-note').value='';
+  closeModal();
+}
+
+document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal()});
+</script>
